@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Control térmico en hornos de reflujo SMD | Alejandro Herrera Campos</title>
+<style>
+:root{--red:#e32636;--dark:#101114;--ink:#202127;--muted:#666;--paper:#f6f6f7;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6}
+header{background:linear-gradient(135deg,#101114 65%,#b51225);color:white;padding:55px 7% 45px;border-bottom:6px solid var(--red)}
+header .tag{letter-spacing:2px;text-transform:uppercase;color:#ffb6bf;font-size:.85rem}h1{font-size:clamp(2rem,4vw,3.2rem);line-height:1.15;margin:15px 0}header p{max-width:850px;color:#eee}
+nav{display:flex;gap:10px;flex-wrap:wrap;padding:15px 7%;background:#1a1b20;position:sticky;top:0;z-index:5}nav a{color:white;text-decoration:none;padding:9px 13px;border:1px solid #444;border-radius:30px;font-size:.9rem}nav a:hover{background:var(--red)}
+main{max-width:1100px;margin:auto;padding:25px 5%}section{background:white;margin:22px 0;padding:28px;border-radius:18px;box-shadow:0 5px 20px #0000000a;border-left:5px solid var(--red)}h2{margin-top:0;color:#a20d20}h3{color:#222}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}.card{background:#f5f5f6;padding:17px;border-radius:13px;border-top:3px solid var(--red)}.card strong{display:block;margin-bottom:6px}
+.flow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;margin:20px 0}.flow span{padding:13px 16px;border-radius:10px;background:#15161a;color:white;text-align:center}.flow b{color:var(--red);font-size:1.2rem}
+label{font-weight:bold}input[type=range]{width:100%;accent-color:var(--red)}canvas{width:100%;max-width:850px;height:280px;display:block;margin:auto;border:1px solid #ddd;border-radius:12px;background:#fff}.small{color:var(--muted);font-size:.92rem}.callout{background:#fff1f2;border-radius:12px;padding:16px;border:1px solid #ffd0d5}
+footer{text-align:center;background:#101114;color:#ddd;padding:30px}footer span{color:#ff6b78}
+</style>
+</head>
+<body>
+<header><div class="tag">Proyecto de investigación · Análisis de Sistemas</div>
+<h1>Control térmico en hornos industriales de reflujo SMD</h1>
+<p>Una mirada sencilla a cómo se mantiene la temperatura adecuada para soldar componentes electrónicos en placas de circuito.</p>
+<p><strong>Estudiante:</strong> Alejandro Herrera Campos</p></header>
+<nav><a href="#contexto">Contexto</a><a href="#funcionamiento">Funcionamiento</a><a href="#control">Sistema de control</a><a href="#modelo">Modelo y fórmulas</a><a href="#octave">GNU Octave</a><a href="#simulador">Simulador</a><a href="#conclusiones">Conclusiones</a></nav>
+<main>
+<section id="contexto"><h2>1. Contexto industrial</h2>
+<p>En la fabricación de dispositivos electrónicos, las placas con componentes montados superficialmente (SMD) pasan por un horno de reflujo. El calor permite que la pasta de soldadura se funda y forme conexiones entre los componentes y la tarjeta.</p>
+<div class="grid"><div class="card"><strong>¿Qué es el horno?</strong>Un equipo que calienta las tarjetas de forma controlada para realizar la soldadura.</div><div class="card"><strong>¿Por qué importa la temperatura?</strong>Un perfil térmico apropiado contribuye a conexiones fiables y a proteger los componentes.</div><div class="card"><strong>¿Dónde se utiliza?</strong>En líneas de fabricación de tarjetas electrónicas para equipos y productos tecnológicos.</div></div>
+</section>
+<section id="funcionamiento"><h2>2. ¿Cómo funciona?</h2><p>La tarjeta atraviesa distintas zonas de calentamiento. Cada zona aporta calor de manera gradual y la temperatura se supervisa para que el proceso sea consistente.</p>
+<div class="grid"><div class="card"><strong>1 · Preparación</strong>La tarjeta entra en el horno con sus componentes y pasta de soldadura.</div><div class="card"><strong>2 · Calentamiento</strong>Las zonas térmicas aumentan la temperatura de forma progresiva.</div><div class="card"><strong>3 · Reflujo</strong>El material de soldadura alcanza las condiciones necesarias para unir los componentes.</div><div class="card"><strong>4 · Enfriamiento</strong>La tarjeta sale del proceso y se enfría antes de continuar su fabricación.</div></div></section>
+<section id="control"><h2>3. Elementos del sistema de control</h2><p>El control térmico compara la temperatura deseada con la medida y ajusta la energía suministrada para acercarse al objetivo.</p>
+<div class="flow"><span>Temperatura<br>objetivo</span><b>→</b><span>Controlador</span><b>→</b><span>Calentadores<br>del horno</span><b>→</b><span>Tarjeta y<br>zona térmica</span></div>
+<div class="grid"><div class="card"><strong>Sensor</strong>Mide la temperatura y envía información al sistema.</div><div class="card"><strong>Controlador</strong>Decide cómo ajustar el calentamiento según la medición.</div><div class="card"><strong>Actuador</strong>Los elementos calefactores aportan energía térmica.</div><div class="card"><strong>Perturbaciones</strong>Entrada de tarjetas frías, cambios de velocidad o condiciones ambientales.</div></div></section>
+
+<section id="modelo"><h2>4. Modelo matemático simplificado</h2>
+<p>Para representar el horno de manera sencilla, se considera que la energía aportada por los calentadores aumenta la temperatura y que parte del calor se pierde hacia el ambiente.</p>
+<div class="callout"><strong>Balance térmico aproximado:</strong><br><br><code>C · dT/dt = P·u − (T − Ta)/R</code><br><br><span class="small">C: capacidad térmica · P: potencia de referencia · u: señal de control (0 a 1) · T: temperatura · Ta: temperatura ambiente · R: resistencia térmica.</span></div>
+<p>Al expresar el modelo en términos de la variación de temperatura respecto al ambiente y aplicar la Transformada de Laplace, se obtiene una representación de primer orden:</p>
+<div class="callout"><strong>Función de transferencia ilustrativa:</strong><br><br><code>G(s) = ΔT(s)/U(s) = P·R / (R·C·s + 1)</code></div>
+<p>Para este ejemplo se utilizan valores ilustrativos: R = 0.15 °C/W, C = 5000 J/°C y P = 1000 W. Así, la ganancia térmica es 150 y la constante de tiempo es 750 segundos. Son valores de demostración, no datos de un horno real.</p>
+<div class="callout"><strong>Forma numérica:</strong><br><br><code>G(s) = 150 / (750s + 1)</code><br><br><code>τ = R·C = 750 s</code></div></section>
+<section id="octave"><h2>5. Comprobación ilustrativa en GNU Octave</h2><p>El siguiente script permite comparar la respuesta del modelo en lazo abierto con una respuesta en lazo cerrado usando un controlador proporcional. Requiere el paquete de control de GNU Octave. El resultado debe ejecutarse y verificarse en Octave antes de presentarlo como comprobación real.</p>
+<pre style="white-space:pre-wrap;overflow-wrap:anywhere;background:#171719;color:#f5f5f5;padding:18px;border-radius:12px;border-left:4px solid #e32636">pkg load control
+
+s = tf('s');
+G = 150/(750*s + 1);  % Modelo térmico ilustrativo
+Kp = 2;               % Control proporcional de ejemplo
+C = Kp;
+T = feedback(C*G, 1);  % Lazo cerrado con realimentación
+
+figure;
+step(G);
+grid on;
+title('Respuesta ilustrativa en lazo abierto');
+ylabel('Variación de temperatura');
+
+figure;
+step(T);
+grid on;
+title('Respuesta ilustrativa en lazo cerrado');
+ylabel('Variación de temperatura');
+
+disp('Polos del modelo en lazo abierto:');
+disp(pole(G));
+disp('Polos del sistema en lazo cerrado:');
+disp(pole(T));
+
+% Valores finales estimados para entrada escalón unitario
+disp('Valor final en lazo abierto:');
+disp(dcgain(G));
+disp('Valor final en lazo cerrado:');
+disp(dcgain(T));</pre>
+<p class="small">Interpretación: la realimentación compara la salida con la referencia y ajusta la acción de control. El script genera las gráficas y muestra los polos y ganancias estáticas para su revisión.</p></section>
+
+<section id="simulador"><h2>6. Simulador ilustrativo</h2><p>Modifica la temperatura objetivo para observar una curva conceptual de acercamiento de la temperatura del horno al valor seleccionado. Esta demostración es ilustrativa, no una medición real ni una validación de laboratorio.</p>
+<label for="target">Temperatura objetivo: <span id="val">180</span> °C</label><input id="target" type="range" min="120" max="250" value="180">
+<canvas id="chart" width="850" height="300"></canvas><p class="small">La curva representa una respuesta gradual y simplificada del sistema.</p></section>
+<section id="conclusiones"><h2>7. Conclusiones</h2><ul><li>El control de temperatura es importante para mantener la calidad del proceso de soldadura electrónica.</li><li>La medición y el ajuste del calentamiento permiten responder a variaciones durante la producción.</li><li>Los sistemas de control ayudan a lograr un proceso más repetible, ordenado y eficiente.</li></ul><div class="callout"><strong>Idea principal:</strong> controlar el calor no consiste solamente en calentar, sino en medir y ajustar continuamente para lograr las condiciones deseadas.</div></section>
+</main><footer>Proyecto de Análisis de Sistemas · <span>Alejandro Herrera Campos</span><br>Control térmico en hornos industriales de reflujo SMD</footer>
+<script>
+const range=document.getElementById('target'),val=document.getElementById('val'),c=document.getElementById('chart'),ctx=c.getContext('2d');
+function draw(){let target=+range.value;val.textContent=target;ctx.clearRect(0,0,c.width,c.height);let L=55,R=25,T=25,B=45,w=c.width-L-R,h=c.height-T-B;
+ctx.strokeStyle='#bbb';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(L,T);ctx.lineTo(L,T+h);ctx.lineTo(L+w,T+h);ctx.stroke();
+ctx.font='14px Arial';ctx.fillStyle='#555';ctx.fillText('Temperatura (°C)',8,18);ctx.fillText('Tiempo (ilustrativo)',L+w-145,c.height-10);
+let low=80,high=260;for(let i=0;i<=4;i++){let y=T+h-i*h/4, v=low+i*(high-low)/4;ctx.fillText(Math.round(v),10,y+5);ctx.strokeStyle='#eee';ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+w,y);ctx.stroke()}
+ctx.strokeStyle='#e32636';ctx.lineWidth=3;ctx.beginPath();for(let i=0;i<=100;i++){let x=i/100, temp=80+(target-80)*(1-Math.exp(-5*x)),px=L+x*w,py=T+h-(temp-low)/(high-low)*h;if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py)}ctx.stroke();
+let y=T+h-(target-low)/(high-low)*h;ctx.strokeStyle='#111';ctx.setLineDash([6,5]);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(L+w,y);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#111';ctx.fillText(target+' °C',L+w-65,y-8)}
+range.addEventListener('input',draw);draw();
+</script></body></html>
